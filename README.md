@@ -1,6 +1,16 @@
 # love-require
 Adds live reloading to LÖVE
 
+## Usage
+
+```lua
+require( "require" )
+
+function love.update( dt )
+  package.update( dt )
+end
+```
+
 ## License
 
 The MIT License (MIT)
