@@ -7,7 +7,7 @@ Adds live reloading to LÖVE
 require( "require" )
 
 function love.update( dt )
-  package.update( dt )
+	package.update( dt )
 end
 ```
 
