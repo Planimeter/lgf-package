@@ -46,16 +46,15 @@ end
 
 local function reload( modname, filename )
 	unload( modname )
-	print( "Reloading " .. modname .. "..." )
+	print( "Updating " .. modname .. "..." )
 
 	local status, err = pcall( require, modname )
-	if ( not status ) then
-		print( err )
+	if ( status ) then return end
 
-		local modtime, errormsg = love.filesystem.getLastModified( filename )
-		package.watched[ modname ] = modtime
-		return
-	end
+	print( err )
+
+	local modtime, errormsg = love.filesystem.getLastModified( filename )
+	package.watched[ modname ] = modtime
 end
 
 function package.update( dt )
