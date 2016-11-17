@@ -1,4 +1,4 @@
-# love-require
+# love-package
 Adds live reloading to LÖVE
 
 ## Usage
