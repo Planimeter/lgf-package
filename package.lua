@@ -38,12 +38,6 @@ function package.init(self)
 	local _exp_0 = love.system.getOS()
 	if "Windows" == _exp_0 then
 		self.handle = ffi.C.FindFirstChangeNotificationA(".", true, 0x00000010)
-	elseif "Linux" == _exp_0 then
-		local inotify = require("inotify")
-		self.handle = inotify.init({
-			blocking = false
-		})
-		return self.handle:addwatch(".", inotify.IN_MODIFY, inotify.IN_ACCESS)
 	end
 end
 
@@ -64,8 +58,6 @@ function package.update(self)
 	local _exp_0 = love.system.getOS()
 	if "Windows" == _exp_0 then
 		changes = 0 == ffi.C.WaitForSingleObject(self.handle, 0)
-	elseif "Linux" == _exp_0 then
-		changes = #self.handle:read() > 0
 	end
 	if changes then
 		for name, objs in pairs(self.files) do
