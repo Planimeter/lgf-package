@@ -10,11 +10,17 @@ require( "ffi" )
 if ( love.system.getOS() == "Windows" ) then
 	ffi.cdef[[
 		typedef void          VOID;
-		typedef char          CHAR;
-		typedef unsigned long DWORD;
-		typedef int           BOOL;
-		typedef const CHAR   *LPCTSTR;
 		typedef VOID         *HANDLE;
+		typedef char          CHAR;
+		typedef const CHAR   *LPCTSTR;
+		typedef int           BOOL;
+		typedef unsigned long DWORD;
+
+		HANDLE FindFirstChangeNotificationA(
+			LPCTSTR lpPathName,
+			BOOL    bWatchSubtree,
+			DWORD   dwNotifyFilter
+		);
 
 		DWORD WaitForSingleObject(
 			HANDLE hHandle,
@@ -23,12 +29,6 @@ if ( love.system.getOS() == "Windows" ) then
 
 		BOOL FindNextChangeNotification(
 			HANDLE hChangeHandle
-		);
-
-		HANDLE FindFirstChangeNotificationA(
-			LPCTSTR lpPathName,
-			BOOL    bWatchSubtree,
-			DWORD   dwNotifyFilter
 		);
 	]]
 end
