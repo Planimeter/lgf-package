@@ -4,7 +4,7 @@ Adds live reloading to LÖVE
 ## Usage
 
 ```lua
-require( "require" )
+require( "loadlib" )
 
 function love.update( dt )
 	package.update( dt )
