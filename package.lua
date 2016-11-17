@@ -31,49 +31,40 @@ if ( love.system.getOS() == "Windows" ) then
 			HANDLE hChangeHandle
 		);
 	]]
+
+	package.handle = ffi.C.FindFirstChangeNotificationA( ".", true, 0x00000010 )
 end
 
-function package.init(self)
-	self.files = { }
-	local _exp_0 = love.system.getOS()
-	if "Windows" == _exp_0 then
-		self.handle = ffi.C.FindFirstChangeNotificationA(".", true, 0x00000010)
-	end
+package.watched = package.watched or {}
+
+local function reload( modname, filename )
+	unload( modname )
+	print( "Updating " .. modname .. "..." )
+
+	local status, err = pcall( require, modname )
+	if ( status ) then return end
+
+	print( err )
+
+	local modtime, errormsg = love.filesystem.getLastModified( filename )
+	package.watched[ modname ] = modtime
 end
 
-function package.watch(self, filename, obj)
-	if self.files[filename] then
-		return table.insert(self.files[filename], obj)
-	else
-		print("listening to changes for " .. tostring(filename) .. "...")
-		self.files[filename] = setmetatable({
-			obj,
-			modified = love.filesystem.getLastModified(filename)
-		}, weakmt)
+function package.update( dt )
+	if ( love.system.getOS() == "Windows" ) then
+		local signaled = ffi.C.WaitForSingleObject( package.handle, 0 ) == 0
+		if ( not signaled ) then return end
 	end
-end
 
-function package.update(self)
-	local changes
-	local _exp_0 = love.system.getOS()
-	if "Windows" == _exp_0 then
-		changes = 0 == ffi.C.WaitForSingleObject(self.handle, 0)
-	end
-	if changes then
-		for name, objs in pairs(self.files) do
-			local modified = love.filesystem.getLastModified(name)
-			if objs.modified < modified then
-				print("modified " .. tostring(name))
-				objs.modified = modified
-				for _, obj in pairs(objs) do
-					if "number" == type(_) then
-						obj:reload(name)
-					end
-				end
-			end
+	for k, v in pairs( package.watched ) do
+		local filename = getModuleFilename( k )
+		local modtime, errormsg = love.filesystem.getLastModified( filename )
+		if ( not errormsg and modtime ~= v ) then
+			reload( k, filename )
 		end
-		if love.system.getOS() == "Windows" then
-			return ffi.C.FindNextChangeNotification(self.handle)
-		end
+	end
+
+	if ( love.system.getOS() == "Windows" ) then
+		ffi.C.FindNextChangeNotification( package.handle )
 	end
 end
