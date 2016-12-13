@@ -5,7 +5,7 @@
 --============================================================================--
 
 require( "package" )
-require( "ffi" )
+local ffi = require( "ffi" )
 
 if ( love.system.getOS() == "Windows" ) then
 	ffi.cdef[[
