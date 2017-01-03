@@ -7,7 +7,7 @@
 require( "package" )
 local ffi = require( "ffi" )
 
-if ( love.system.getOS() == "Windows" ) then
+if ( ffi.os == "Windows" ) then
 	ffi.cdef[[
 		typedef void          VOID;
 		typedef VOID         *HANDLE;
@@ -42,7 +42,7 @@ end
 local function getModuleFilename( modname )
 	local path = string.gsub( modname, "%.", "/" )
 	local filename = path .. ".lua"
-	if ( not love.filesystem.exists( filename ) ) then
+	if ( not framework.filesystem.exists( filename ) ) then
 		filename = path .. "/init.lua"
 	end
 	return filename
@@ -59,7 +59,7 @@ function require( modname )
 	end
 
 	local filename = getModuleFilename( modname )
-	package.watched[ modname ] = love.filesystem.getLastModified( filename )
+	package.watched[ modname ] = framework.filesystem.getLastModified( filename )
 	return ret
 end
 
@@ -84,25 +84,25 @@ local function reload( modname, filename )
 
 	print( err )
 
-	local modtime, errormsg = love.filesystem.getLastModified( filename )
+	local modtime, errormsg = framework.filesystem.getLastModified( filename )
 	package.watched[ modname ] = modtime
 end
 
 function package.update( dt )
-	if ( love.system.getOS() == "Windows" ) then
+	if ( ffi.os == "Windows" ) then
 		local signaled = ffi.C.WaitForSingleObject( package.handle, 0 ) == 0
 		if ( not signaled ) then return end
 	end
 
 	for k, v in pairs( package.watched ) do
 		local filename = getModuleFilename( k )
-		local modtime, errormsg = love.filesystem.getLastModified( filename )
+		local modtime, errormsg = framework.filesystem.getLastModified( filename )
 		if ( not errormsg and modtime ~= v ) then
 			reload( k, filename )
 		end
 	end
 
-	if ( love.system.getOS() == "Windows" ) then
+	if ( ffi.os == "Windows" ) then
 		ffi.C.FindNextChangeNotification( package.handle )
 	end
 end

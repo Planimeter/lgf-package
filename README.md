@@ -1,12 +1,12 @@
-# love-package
-Adds live reloading to LÖVE
+# lgf-package
+Adds live reloading to lgameframework
 
 ## Usage
 
 ```lua
 require( "loadlib" )
 
-function love.update( dt )
+function framework.update( dt )
 	package.update( dt )
 end
 ```
