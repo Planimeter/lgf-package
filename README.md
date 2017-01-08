@@ -2,7 +2,6 @@
 Adds live reloading to lgameframework
 
 ## Usage
-
 ```lua
 require( "loadlib" )
 
@@ -12,7 +11,6 @@ end
 ```
 
 ## License
-
 The MIT License (MIT)
 
 Copyright (c) 2017 Planimeter
