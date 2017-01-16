@@ -5,47 +5,20 @@
 --============================================================================--
 
 require( "package" )
-local ffi = require( "ffi" )
-
-if ( ffi.os == "Windows" ) then
-	ffi.cdef[[
-		typedef void          VOID;
-		typedef VOID         *HANDLE;
-		typedef char          CHAR;
-		typedef const CHAR   *LPCTSTR;
-		typedef int           BOOL;
-		typedef unsigned long DWORD;
-
-		HANDLE FindFirstChangeNotificationA(
-			LPCTSTR lpPathName,
-			BOOL    bWatchSubtree,
-			DWORD   dwNotifyFilter
-		);
-
-		DWORD WaitForSingleObject(
-			HANDLE hHandle,
-			DWORD  dwMilliseconds
-		);
-
-		BOOL FindNextChangeNotification(
-			HANDLE hChangeHandle
-		);
-	]]
-
-	package.handle = ffi.C.FindFirstChangeNotificationA( ".", true, 0x00000010 )
-end
 
 if ( not rawrequire ) then
 	rawrequire = require
 end
 
 local function getModuleFilename( modname )
-	local path = string.gsub( modname, "%.", "/" )
-	local filename = path .. ".lua"
-	if ( not framework.filesystem.exists( filename ) ) then
-		filename = path .. "/init.lua"
+	local module = string.gsub( modname, "%.", "/" )
+	for path in string.gmatch( package.path, "(.-);" ) do
+		path = string.gsub( path, "%./", "" )
+		local filename = string.gsub( path, "?", module )
+		if ( framework.filesystem.exists( filename ) ) then
+			return filename
+		end
 	end
-	return filename
 end
 
 function require( modname )
@@ -59,7 +32,9 @@ function require( modname )
 	end
 
 	local filename = getModuleFilename( modname )
-	package.watched[ modname ] = framework.filesystem.getLastModified( filename )
+	if ( filename ) then
+		package.watched[ modname ] = framework.filesystem.getLastModified( filename )
+	end
 	return ret
 end
 
@@ -89,20 +64,11 @@ local function reload( modname, filename )
 end
 
 function package.update( dt )
-	if ( ffi.os == "Windows" ) then
-		local signaled = ffi.C.WaitForSingleObject( package.handle, 0 ) == 0
-		if ( not signaled ) then return end
-	end
-
 	for k, v in pairs( package.watched ) do
 		local filename = getModuleFilename( k )
 		local modtime, errormsg = framework.filesystem.getLastModified( filename )
 		if ( not errormsg and modtime ~= v ) then
 			reload( k, filename )
 		end
-	end
-
-	if ( ffi.os == "Windows" ) then
-		ffi.C.FindNextChangeNotification( package.handle )
 	end
 end
