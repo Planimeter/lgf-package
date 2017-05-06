@@ -56,7 +56,9 @@ local function reload( modname, filename )
 	print( "Updating " .. modname .. "..." )
 
 	local status, err = pcall( require, modname )
-	if ( status ) then return end
+	if ( status ) then
+		return
+	end
 
 	print( err )
 
