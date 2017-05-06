@@ -35,6 +35,7 @@ function require( modname )
 	if ( filename ) then
 		package.watched[ modname ] = framework.filesystem.getLastModified( filename )
 	end
+
 	return ret
 end
 
