@@ -33,7 +33,8 @@ function require( modname )
 
 	local filename = getModuleFilename( modname )
 	if ( filename ) then
-		package.watched[ modname ] = framework.filesystem.getLastModified( filename )
+		local modtime, errormsg = framework.filesystem.getLastModified( filename )
+		package.watched[ modname ] = modtime
 	end
 
 	return ret
