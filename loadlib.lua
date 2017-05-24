@@ -12,7 +12,7 @@ end
 
 local function getModuleFilename( modname )
 	local module = string.gsub( modname, "%.", "/" )
-	for path in string.gmatch( package.path, "(.-);" ) do
+	for path in string.gmatch( package.path .. ";", "(.-);" ) do
 		path = string.gsub( path, "%./", "" )
 		local filename = string.gsub( path, "?", module )
 		if ( framework.filesystem.exists( filename ) ) then
@@ -70,9 +70,11 @@ end
 function package.update( dt )
 	for k, v in pairs( package.watched ) do
 		local filename = getModuleFilename( k )
-		local modtime, errormsg = framework.filesystem.getLastModified( filename )
-		if ( not errormsg and modtime ~= v ) then
-			reload( k, filename )
+		if ( filename ) then
+			local modtime, errormsg = framework.filesystem.getLastModified( filename )
+			if ( not errormsg and modtime ~= v ) then
+				reload( k, filename )
+			end
 		end
 	end
 end
