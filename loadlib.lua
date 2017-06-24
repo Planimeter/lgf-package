@@ -27,7 +27,7 @@ function require( modname )
 	end
 
 	local status, ret = pcall( rawrequire, modname )
-	if ( not status ) then
+	if ( status == false ) then
 		error( ret, 2 )
 	end
 
